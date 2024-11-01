@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="toastDemo">
+<head>
+    <meta charset="UTF-8">
+    <title>Toast Demo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .success-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .warning-btn {
+            background-color: #ff9800;
+            color: white;
+        }
+        .error-btn {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        angular.module('toastDemo', [])
+            .controller('MainController', function($scope, $http) {
+                toastr.options.positionClass = 'toast-top-right';
+                toastr.options.preventDuplicates = true;
+                toastr.options.closeButton = true;
+                toastr.options.progressBar = true;
+
+                function showMessages(result) {
+                    if (result.messages && result.messages.length > 0) {
+                        const messageToShow = result.messages.find(msg => msg.type === 'ERROR') || result.messages[0];
+
+                        const config = {
+                            timeOut: messageToShow.toastConfig.timeout,
+                            closeButton: messageToShow.toastConfig.showCloseButton,
+                            progressBar: messageToShow.toastConfig.progressBar,
+                            preventDuplicates: messageToShow.toastConfig.preventDuplicates,
+                            positionClass: `toast-${messageToShow.toastConfig.position}`
+                        };
+
+                        switch (messageToShow.type) {
+                            case 'SUCCESS':
+                                toastr.success(messageToShow.content, null, config);
+                                break;
+                            case 'ERROR':
+                                toastr.error(messageToShow.content, null, config);
+                                break;
+                        }
+                    }
+                }
+
+                $scope.testSuccess = function() {
+                    $http.get('http://localhost:8080/api/test-success')
+                        .then(function(response) {
+                            showMessages(response.data);
+                        })
+                        .catch(function(error) {
+                            console.error("Request failed: ", error);
+                        });
+                };
+
+                $scope.testError = function() {
+                    $http.get('http://localhost:8080/api/test-error')
+                        .then(function(response) {
+                            showMessages(response.data);
+                        })
+                        .catch(function(error) {
+                            console.error("Request failed: ", error);
+                        });
+                };
+            });
+    </script>
+</head>
+<body ng-controller="MainController">
+<h1>Toast Benachrichtigungen Demo</h1>
+<div class="button-container">
+    <button class="success-btn" ng-click="testSuccess()">Success Test</button>
+    <button class="error-btn" ng-click="testError()">Error Test</button>
+</div>
+</body>
+</html>
