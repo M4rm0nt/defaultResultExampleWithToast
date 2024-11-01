@@ -14,7 +14,6 @@ public class ToastConfig {
         this.preventDuplicates = true;
     }
 
-    // Getter und Setter
     public int getTimeout() { return timeout; }
     public void setTimeout(int timeout) { this.timeout = timeout; }
     public boolean isShowCloseButton() { return showCloseButton; }

@@ -12,7 +12,6 @@ public class DemoController {
     public Result<String> testSuccess() {
         Result<String> result = new Result<>();
         result.setStatus(Status.SUCCESS);
-        result.setData("Operation abgeschlossen");
         result.addMessage(MessageType.SUCCESS, "Aktion wurde erfolgreich ausgeführt");
         return result;
     }

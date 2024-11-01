@@ -16,7 +16,6 @@ public class Message {
         this.toastConfig.setTimeout(type.getDefaultTimeout());
     }
 
-    // Getter
     public MessageType getType() { return type; }
     public String getContent() { return content; }
     public LocalDateTime getTimestamp() { return timestamp; }
