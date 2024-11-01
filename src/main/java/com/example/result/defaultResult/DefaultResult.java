@@ -1,13 +1,13 @@
-package com.example.result;
+package com.example.result.defaultResult;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Result<T> {
+public class DefaultResult<T> {
     private Status status;
     private List<Message> messages;
 
-    public Result() {
+    public DefaultResult() {
         this.messages = new ArrayList<>();
         this.status = Status.PENDING ;
     }
