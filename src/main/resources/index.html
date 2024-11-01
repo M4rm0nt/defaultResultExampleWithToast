@@ -25,13 +25,29 @@
             background-color: #4CAF50;
             color: white;
         }
-        .warning-btn {
-            background-color: #ff9800;
-            color: white;
-        }
         .error-btn {
             background-color: #f44336;
             color: white;
+        }
+        .toast-success {
+            background-color: #4CAF50 !important;
+            opacity: 1 !important;
+        }
+        .toast-error {
+            background-color: #f44336 !important;
+            opacity: 1 !important;
+        }
+        .toast-info {
+            background-color: #2196F3 !important;
+            opacity: 1 !important;
+        }
+        .toast-warning {
+            background-color: #ff9800 !important;
+            opacity: 1 !important;
+        }
+        .toast-message {
+            color: #fff !important;
+            font-weight: bold;
         }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
@@ -40,31 +56,33 @@
     <script>
         angular.module('toastDemo', [])
             .controller('MainController', function($scope, $http) {
-                toastr.options.positionClass = 'toast-top-right';
-                toastr.options.preventDuplicates = true;
-                toastr.options.closeButton = true;
-                toastr.options.progressBar = true;
+                toastr.options = {
+                    positionClass: 'toast-top-right',       // Position der Toasts
+                    preventDuplicates: true,                // Doppelte Toasts verhindern
+                    closeButton: true,                      // Schließen-Button anzeigen
+                    progressBar: false,                     // Progress-Bar ausblenden
+                    timeOut: 0,                             // Deaktiviert das automatische Ausblenden(5 sekunden standard)
+                    extendedTimeOut: 0,                     // Auch beim Hover kein Timeout
+                };
 
                 function showMessages(result) {
                     if (result.messages && result.messages.length > 0) {
-                        const messageToShow = result.messages.find(msg => msg.type === 'ERROR') || result.messages[0];
-
-                        const config = {
-                            timeOut: messageToShow.toastConfig.timeout,
-                            closeButton: messageToShow.toastConfig.showCloseButton,
-                            progressBar: messageToShow.toastConfig.progressBar,
-                            preventDuplicates: messageToShow.toastConfig.preventDuplicates,
-                            positionClass: `toast-${messageToShow.toastConfig.position}`
-                        };
-
-                        switch (messageToShow.type) {
-                            case 'SUCCESS':
-                                toastr.success(messageToShow.content, null, config);
-                                break;
-                            case 'ERROR':
-                                toastr.error(messageToShow.content, null, config);
-                                break;
-                        }
+                        result.messages.forEach(function(message) {
+                            switch (message.type) {
+                                case 'SUCCESS':
+                                    toastr.success(message.content);
+                                    break;
+                                case 'INFO':
+                                    toastr.info(message.content);
+                                    break;
+                                case 'ERROR':
+                                    toastr.error(message.content);
+                                    break;
+                                case 'WARNING':
+                                    toastr.warning(message.content);
+                                    break;
+                            }
+                        });
                     }
                 }
 
