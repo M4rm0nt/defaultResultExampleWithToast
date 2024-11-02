@@ -1,217 +1,279 @@
 <!DOCTYPE html>
-<html lang="de" ng-app="orderDemo">
+<html lang="de" ng-app="dailyStatusApp">
 <head>
     <meta charset="UTF-8">
-    <title>Bestellung Demo</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <title>Tagesstatus</title>
+    <!-- Einbindung von AngularJS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <!-- Einbindung von Font Awesome für Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+    <!-- Eigene CSS-Stile -->
     <style>
-        :root {
-            --primary-color: #4CAF50;
-            --primary-hover: #45a049;
-            --background-color: #f5f5f5;
-            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --input-border: #e0e0e0;
-            --text-color: #333;
-        }
-
+        /* Globale Stile */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Roboto', sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            min-height: 100vh;
+            padding: 20px;
+            background-color: #e0e0e0;
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
         }
 
-        .card {
-            background: white;
+        /* Telefoncontainer zur Simulation eines mobilen Geräts */
+        .phone-container {
+            width: 360px;
+            height: 720px;
+            background: #fff;
+            border-radius: 40px;
+            position: relative;
+            overflow: hidden;
+            border: 16px solid #1a1a1a;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        /* Notch am oberen Rand */
+        .notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160px;
+            height: 30px;
+            background: #1a1a1a;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            z-index: 2;
+        }
+
+        /* Bildschirminhalt */
+        .screen {
+            height: 100%;
+            overflow-y: auto;
+            background: #f5f5f5;
+            padding: 40px 15px 20px;
+            position: relative;
+        }
+
+        /* Inhalt-Karten */
+        .content-card {
+            background: #fff;
             border-radius: 12px;
-            box-shadow: var(--card-shadow);
-            padding: 2rem;
-            width: 100%;
-            max-width: 480px;
-            margin: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* Überschriften */
+        h1, h2 {
+            font-weight: 500;
+            margin-top: 0;
         }
 
         h1 {
-            color: var(--text-color);
-            margin: 0 0 1.5rem 0;
-            font-size: 1.75rem;
-            text-align: center;
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
         }
 
-        .form-group {
-            margin-bottom: 1.5rem;
+        h2 {
+            font-size: 20px;
+            color: #444;
+            margin-bottom: 15px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--text-color);
-        }
-
-        input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--input-border);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.2s ease;
-            box-sizing: border-box;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        /* Button-Stile */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px 0;
         }
 
         button {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: var(--primary-color);
-            color: white;
+            padding: 12px 20px;
             border: none;
             border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            font-size: 16px;
+            width: 100%;
+            font-weight: 500;
+            transition: background-color 0.2s;
         }
 
-        button:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-1px);
+        .primary-btn {
+            background-color: #2196F3;
+            color: white;
         }
 
-        button:active {
-            transform: translateY(0);
+        .primary-btn:hover {
+            background-color: #1976D2;
         }
 
-        #toast-container {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* Nachrichtenliste */
+        .message-group {
+            margin-bottom: 20px;
         }
 
-        .toast {
-            border-radius: 8px !important;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+        .message-group h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            color: #555;
         }
 
-        .toast-success {
-            background-color: #28a745 !important;
+        .message-group h3 .icon {
+            margin-right: 8px;
         }
 
-        .toast-error {
-            background-color: #dc3545 !important;
+        .message-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
-        .toast-info {
-            background-color: #17a2b8 !important;
+        .message-list li {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            color: #333;
         }
 
-        .toast-warning {
-            background-color: #ffc107 !important;
-            color: #333 !important;
+        .message-list li .icon {
+            margin-right: 10px;
+            font-size: 18px;
         }
 
-        #toast-container > div {
-            padding: 15px 15px 15px 50px;
-            opacity: 1;
+        /* Nachrichtentyp-Stile */
+        .success {
+            color: #4CAF50;
         }
 
-        @media (max-width: 480px) {
-            .card {
-                margin: 10px;
-                padding: 1.5rem;
-            }
+        .error {
+            color: #F44336;
+        }
 
-            h1 {
-                font-size: 1.5rem;
-            }
+        .warning {
+            color: #FF9800;
+        }
+
+        .info {
+            color: #2196F3;
+        }
+
+        /* Scrollbar-Anpassung */
+        .screen::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .screen::-webkit-scrollbar-thumb {
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 4px;
+        }
+
+        /* Fehlermeldung */
+        .error-message {
+            color: #F44336;
+            font-weight: 500;
         }
     </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script>
-        angular.module('orderDemo', [])
-            .controller('OrderController', function($scope, $http) {
-                $scope.order = {
-                    customerName: '',
-                    totalAmount: 0
-                };
-
-                toastr.options = {
-                    positionClass: 'toast-top-right',
-                    preventDuplicates: true,
-                    closeButton: false,
-                    progressBar: true,
-                    timeOut: 3000,
-                    extendedTimeOut: 1000,
-                    closeMethod: 'fadeOut',
-                    closeDuration: 300,
-                    closeEasing: 'swing',
-                    newestOnTop: true
-                };
-
-                function showMessages(result) {
-                    if (result.messages && result.messages.length > 0) {
-                        result.messages.forEach(function(message) {
-                            switch (message.type) {
-                                case 'SUCCESS':
-                                    toastr.success(message.content, 'Erfolg');
-                                    break;
-                                case 'INFO':
-                                    toastr.info(message.content, 'Information');
-                                    break;
-                                case 'ERROR':
-                                    toastr.error(message.content, 'Fehler');
-                                    break;
-                                case 'WARNING':
-                                    toastr.warning(message.content, 'Warnung');
-                                    break;
-                            }
-                        });
-                    }
-                }
-
-                $scope.processOrder = function() {
-                    $http.post('http://localhost:8080/api/orders/process', $scope.order)
-                        .then(function(response) {
-                            showMessages(response.data);
-                            if (response.data.status === 'SUCCESS') {
-                                $scope.order = {
-                                    customerName: '',
-                                    totalAmount: 0
-                                };
-                            }
-                        })
-                        .catch(function(error) {
-                            console.error("Request failed: ", error);
-                            toastr.error("Ein unerwarteter Fehler ist aufgetreten", "Fehler");
-                        });
-                };
-            });
-    </script>
 </head>
-<body ng-controller="OrderController">
-<div class="card">
-    <h1>Bestellung aufgeben</h1>
-    <form ng-submit="processOrder()">
-        <div class="form-group">
-            <label for="customerName">Kundenname:</label>
-            <input type="text" id="customerName" ng-model="order.customerName" required>
+<body ng-controller="MainController">
+<div class="phone-container">
+    <div class="notch"></div>
+    <div class="screen">
+        <!-- Benachrichtigungs-Karte -->
+        <div class="content-card">
+            <h1>Benachrichtigungen</h1>
+            <div class="button-container">
+                <button class="primary-btn" ng-click="getDailyStatus()">Tagesstatus abrufen</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="totalAmount">Bestellbetrag (€):</label>
-            <input type="number" id="totalAmount" ng-model="order.totalAmount" required min="0" step="0.01">
+        <!-- Aktivitäten-Karte -->
+        <div class="content-card activities-card" ng-if="messages.length > 0">
+            <h2>Aktivitäten</h2>
+            <div ng-repeat="messageGroup in messages" class="message-group">
+                <h3>
+                    <i class="icon" ng-class="getIconClass(messageGroup.type)"></i>
+                    {{ getMessageTypeLabel(messageGroup.type) }}
+                </h3>
+                <ul class="message-list">
+                    <li ng-repeat="content in messageGroup.content">
+                        <i class="icon" ng-class="getIconClass(messageGroup.type)"></i>
+                        {{ content }}
+                    </li>
+                </ul>
+            </div>
         </div>
-        <button type="submit">Bestellung absenden</button>
-    </form>
+        <!-- Fehlermeldung -->
+        <div class="content-card" ng-if="errorMessage">
+            <h2>Fehler</h2>
+            <p class="error-message">{{ errorMessage }}</p>
+        </div>
+    </div>
 </div>
+<!-- AngularJS Controller -->
+<script>
+    angular.module('dailyStatusApp', [])
+        .controller('MainController', function($scope, $http) {
+            $scope.messages = [];
+            $scope.errorMessage = '';
+
+            $scope.getDailyStatus = function() {
+                $http.get('http://localhost:8080/api/daily-status')
+                    .then(function(response) {
+                        if (response.data && response.data.messages) {
+                            $scope.messages = "";
+                            $scope.messages = response.data.messages;
+                            $scope.errorMessage = '';
+                        } else {
+                            $scope.errorMessage = "Keine Nachrichten verfügbar.";
+                        }
+                    })
+                    .catch(function(error) {
+                        console.error("Request failed: ", error);
+                        $scope.errorMessage = "Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.";
+                    });
+            };
+
+            $scope.getMessageTypeLabel = function(type) {
+                switch(type) {
+                    case 'SUCCESS':
+                        return 'Erfolgsmeldungen';
+                    case 'ERROR':
+                        return 'Fehlermeldungen';
+                    case 'WARNING':
+                        return 'Warnungen';
+                    case 'INFO':
+                        return 'Informationen';
+                    default:
+                        return type;
+                }
+            };
+
+            $scope.getIconClass = function(type) {
+                switch(type) {
+                    case 'SUCCESS':
+                        return 'fa fa-check-circle success';
+                    case 'ERROR':
+                        return 'fa fa-exclamation-circle error';
+                    case 'WARNING':
+                        return 'fa fa-exclamation-triangle warning';
+                    case 'INFO':
+                        return 'fa fa-info-circle info';
+                    default:
+                        return '';
+                }
+            };
+        });
+</script>
 </body>
 </html>
